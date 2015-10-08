@@ -29,7 +29,7 @@ var auth = require('./auth.js')(app);
 
 app.use('/', require('./routes/index'));
 app.use('/api/users', require('./routes/users')(app, auth));
-//app.use('/api/products', require('./routes/products.js')(app, auth));
+app.use('/api/products', require('./routes/products.js')(app, auth));
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

@@ -5,11 +5,9 @@ var mongoose = require('mongoose');
 var crypto = require('crypto');
 
 var Scheme = new mongoose.Schema({
-    username: String,
+    username: {type: String, index: {unique: true}},
     password: String
 });
-
-Scheme.index({username: 1});
 
 Scheme.methods.toPublic = function () {
     var obj = this.toObject();

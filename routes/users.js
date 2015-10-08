@@ -1,7 +1,8 @@
 var express = require('express');
+var jwt = require('jsonwebtoken');
+
 var router = express.Router();
 var app = express();
-var jwt = require('jsonwebtoken');
 var User = require('./../models/user.js');
 
 module.exports = function(app, auth) {
@@ -57,6 +58,13 @@ module.exports = function(app, auth) {
         });
         newUser.save(function (err) {
             if (err) {
+                if( err.code === 11000 ) {
+                    return res.send({
+                        success: false,
+                        message: 'User already exist',
+                        err: err
+                    });
+                }
                 return res.send({
                     success: false,
                     err: err
