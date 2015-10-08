@@ -1,29 +1,30 @@
 /**
- * Created by Aloyan Dmitry on 06.10.2015
+ * Created by Aloyan Dmitry on 08.10.2015
  */
-var passport = require('passport');
-var localStrategy = require('passport-local').Strategy;
-var user = require('./models/user.js');
+var express = require('express');
+var router = express.Router();
+var jwt = require('jsonwebtoken');
 
 module.exports = function(app){
-    passport.use(new localStrategy(
-        function(username, password, done) {
-            user.findOne({ username: username }, function(err, user) {
-                if (err) { return done(err); }
-                if (!user) {
-                    return done(null, false, { message: 'Incorrect username.' });
-                }
-                if (!user.validPassword(password)) {
-                    return done(null, false, { message: 'Incorrect password.' });
-                }
-                return done(null, user);
+    router.use(function(req, res, next){
+        var token = req.body.token || req.query.token || req.headers['x-access-token'];
+        if( !token ) {
+            return res.send({
+                success: false,
+                message: 'No token provided'
             });
         }
-    ));
+        jwt.verify(token, app.get('superSecret'), function(err, decoded){
+            if( err ){
+                return res.send({
+                    success: false,
+                    message: 'Failed to authenticate token'
+                });
+            }
+            req.user = decoded;
+            next();
+        });
+    });
 
-    app.post('/login', passport.authenticate('local', {
-            successRedirect: '/',
-            failureRedirect: '/login',
-            failureFlash: true
-    }));
+    return router;
 }

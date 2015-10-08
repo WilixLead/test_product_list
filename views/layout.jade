@@ -1,18 +1,28 @@
 doctype html
-html
-  head
-    title= title
-    link(rel='stylesheet', href='/stylesheets/style.css')
-    link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css')
+html(ng-app='ProdApp')
+    head
+        base(href='/')
+        title= title
+        link(rel='stylesheet', href='/stylesheets/style.css')
+        link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css')
 
-    script(src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js')
-    script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js')
-    script(src='https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.min.js')
-    script(src='./javascripts/app.js')
-    script(src='./javascripts/controllers.js')
-  body
-    .container
-        .row
-            h1 Product List
-        .row
-            block content
+        script(src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js')
+        script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js')
+        script(src='https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.min.js')
+        script(src='https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular-route.js')
+        script(src='./javascripts/app.js')
+        script(src='./javascripts/controllers.js')
+        script(src='./javascripts/services.js')
+    body(ng-controller='MainCtrl')
+        nav.navbar.navbar-default
+            .container-fluid
+                .navbar-header
+                    a.navbar-brand(href='/') Product List
+                .navbar-collapse
+                    .navbar-right
+                        span(ng-if='user') Hi, {{user.title}}
+                        a.btn.btn-success.navbar-btn(href='/signin', ng-if='!user') Sign in
+                        a.btn.btn-warding.navbar-btn(href='/logout', ng-if='user') Log out
+        .container-fluid
+            .row
+                block content
