@@ -1,17 +1,40 @@
-extends layout
+div
+    p
+        button.btn.btn-success(ng-click='createProduct()')
+            span.glyphicon.glyphicon-plus
+            | New product
+    .list-group(ng-if='products && products.length')
+        a.list-group-item.clearfix(href='#', ng-repeat='item in products')
+            img.col-md-3.col-sm-3.img-responsive(ng-src='{{item.photo}}', ng-click='openProduct(item._id)')
+            .col-md-9.con-sm-9(ng-click='openProduct(item._id)')
+                h4.list-group-item-heading {{item.title}}
+                p.list-group-item-text {{item.description}}
+            button.pull-right.btn.btn-danger(ng-click='remove(item._id)')
+                span.glyphicon.glyphicon-trash
+    .well.well-lg.text-center(ng-if='!products.length')
+        | You don't have products now. Try to 
+        a(href='#', ng-click='createProduct()') create new product
 
-block content
-    div(ng-controller='ProductCtrl')
-        p
-            button.btn.btn-success(ng-click='addNewDialog()')
-                span.glyphicon.glyphicon-plus
-                | New product
-        .list-group(ng-if='products && products.length')
-            a.list-group-item.clearfix(href='#', ng-repeat='item in products')
-                img.col-md-3.col-sm-3.img-responsive(ng-src='{{item.photo}}')
-                .col-md-9.con-sm-9
-                    h4.list-group-item-heading {{item.title}}
-                    p.list-group-item-text {{item.description}}
-        .well.well-lg.text-center(ng-if='!products.length')
-            | You don't have products now. Try to
-            a(href='#', ng-click='addNewDialog()') create new product
+#edit-dialog.modal.fade(ng-controller='ProductEditorCtrl')
+    .modal-dialog
+        .modal-content
+            .modal-header
+                button.close(type='button', data-dismiss='modal', aria-label='Close')
+                    span(aria-hidden='true') x
+                h4.modal-title Edit product
+            .modal-body.clearfix
+                .col-md-4
+                    img.img-responsive(ng-src='{{product.photo}}')
+                .col-md-8
+                    .form-group(ng-class='{"has-error": error}')
+                        label(for='product_title') Title
+                        input#product_title.form-control(type='text', ng-model='product.title', required='required')
+                    .form-group
+                        label(for='product_desc') Description
+                        textarea#product_title.form-control(rows='3', ng-model='product.description')
+                    .form-group
+                        label(for='product_photo') Photo image
+                        input#product_photo(type='file', file-model='product.file')
+            .modal-footer
+                button.btn.btn-primary(type='button', ng-click="save()") Save 
+                button.btn.btn-default(type='button', data-dismiss='modal') Close

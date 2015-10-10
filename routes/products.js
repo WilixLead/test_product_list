@@ -65,11 +65,11 @@ module.exports = function (app, auth) {
     });
 
     /* Create new product */
-    router.post('/', auth, upload.single('photo'), function (req, res) {
-        if (!req.body.title || !req.body.description) {
+    router.post('/', auth, upload.single('file'), function (req, res) {
+        if (!req.body.title || !req.body.title.length) {
             return res.send({
                 success: false,
-                message: 'Bad parameters'
+                message: 'Title required'
             });
         }
 
@@ -97,13 +97,21 @@ module.exports = function (app, auth) {
     });
 
     /* Update existing product */
-    router.put('/:id', auth, upload.single('photo'), function (req, res) {
+    router.put('/:id', auth, upload.single('file'), function (req, res) {
         if (!req.params.id) {
             return res.send({
                 success: false,
                 message: 'Product ID not specified'
             });
         }
+
+        if (!req.body.title || !req.body.title.length) {
+            return res.send({
+                success: false,
+                message: 'Title required'
+            });
+        }
+        
         Product.findOne({_id: req.params.id, user_id: req.user._id}, function (err, product) {
             if (err) {
                 return res.send({
@@ -119,7 +127,11 @@ module.exports = function (app, auth) {
             }
 
             var photoStatus = product.uploadPhoto(req.file, req.user);
-
+            
+            product.user_id = req.user._id;
+            product.title = req.body.title;
+            product.description = req.body.description;
+            
             product.save(function (err) {
                 if (err) {
                     return res.send({

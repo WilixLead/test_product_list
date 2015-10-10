@@ -1,8 +1,12 @@
-form
-    .form-group
-        label(for='username') Email address
-        input#username.form-control(type='email', name='username', placeholder='Email')
-    .form-group
-        label(for='password') Password
-        input#password.form-control(type='password', name='password', placeholder='Password')
-    button.btn.btn-default(type='submit') Submit
+.col-md-4
+.col-md-4
+    form
+        .form-group(ng-class='{"has-error": error}')
+            label(for='username') Email address
+            input#username.form-control(type='text', ng-model='username', placeholder='Username')
+        .form-group(ng-class='{"has-error": error}')
+            label(for='password') Password
+            input#password.form-control(type='password', ng-model='password', placeholder='Password')
+        button.btn.btn-default(type='buttom', ng-click='login()') Login  
+        button.btn.btn-info.pull-right(type='buttom', ng-click='signin()') Sign in
+.col-md-4

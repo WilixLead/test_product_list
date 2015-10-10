@@ -77,10 +77,19 @@ module.exports = function(app, auth) {
         })
     });
 
+    router.get('/logout', auth, function (req, res) {
+        res.clearCookie('token');
+        req.user = {};
+        res.send({
+            success: true,
+            user: {}
+        })
+    });
+
     router.get('/', auth, function (req, res) {
         res.send({
             success: true,
-            data: req.user
+            user: req.user
         })
     });
 
