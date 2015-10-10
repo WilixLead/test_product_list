@@ -47,9 +47,9 @@ app.controller('LoginCtrl', ['$scope', '$location', 'User', function($scope, $lo
     }
 }]);
 
-app.controller('ProductCtrl', ['$scope', 'Products', function($scope, Products){
+app.controller('ProductCtrl', ['$scope', 'Products', 'SocketAPI', function($scope, Products, SocketAPI){
     $scope.page = 0;
-    $scope.limit = 10;
+    $scope.limit = 1000;
     $scope.productsCount = 0;
     
     $scope.getList = function(){
@@ -87,13 +87,32 @@ app.controller('ProductCtrl', ['$scope', 'Products', function($scope, Products){
             });
         }
     }
-    
-    // On init calls
-    
-    $('#edit-dialog').on('hide.bs.modal', function () {
+
+    $scope.$on('socket:created', function(ev, product){
         $scope.getList();
     });
 
+    $scope.$on('socket:updated', function(ev, product){
+        $scope.getList();
+    });
+
+    $scope.$on('socket:removed', function(ev, id){
+        var found = false;
+        $scope.products.forEach(function(prod){
+            if( prod._id == id ) {
+                found = true;
+                $scope.products.splice($scope.products.indexOf(prod), 1);
+            }
+        });
+        if( !found ) {
+            $scope.getList();
+        }
+    });
+    
+    // On init calls
+    $('#edit-dialog').on('hide.bs.modal', function () {
+        $scope.getList();
+    });
     $scope.getList();
 }]);
 
@@ -124,3 +143,4 @@ app.controller('ProductEditorCtrl', ['$scope', 'Products', function($scope, Prod
         }
     }
 }]);
+

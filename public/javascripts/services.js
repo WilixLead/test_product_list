@@ -65,7 +65,7 @@ app.factory('Products', ['API', function (API) {
 app.factory('User', ['$http', '$location', '$rootScope', '$cookies', 'API', function ($http, $location, $rootScope, $cookies, API) {
     var user = {};
 
-    var setUser = function(ruser){
+    var setUser = function (ruser) {
         user = ruser;
         //$rootScope.$apply(function(){
         //    $rootScope.user = user;
@@ -119,7 +119,7 @@ app.factory('User', ['$http', '$location', '$rootScope', '$cookies', 'API', func
     return this;
 }]);
 
-app.factory('API', ['$http', '$rootScope', '$cookies', function ($http, $rootScope, $cookies) {
+app.factory('API', ['$http', '$rootScope', '$cookies', 'SocketAPI', function ($http, $rootScope, $cookies, SocketAPI) {
     var handleError = function (res, muteErrors) {
         if (!res.err && !res.message) {
             return $rootScope.serverErrors = [];
@@ -167,12 +167,13 @@ app.factory('API', ['$http', '$rootScope', '$cookies', function ($http, $rootSco
                 message: 'Data transfer problem'
             });
         }
-        if( !res.data.success ) {
+        if (!res.data.success) {
             handleError(res.data, muteErrors);
         }
         !callback || callback(res.data);
         if (res.data.success && res.data.token && res.data.token.length) {
             $cookies.put('token', res.data.token);
+            SocketAPI.auth(res.data.token); // Auth in sockets
         }
     };
 
@@ -192,9 +193,9 @@ app.factory('API', ['$http', '$rootScope', '$cookies', function ($http, $rootSco
                 errorFn(callback, muteErrors)
             });
     }
-    fn.upload = function(method, url, data, callback, muteErrors){
+    fn.upload = function (method, url, data, callback, muteErrors) {
         var form = new FormData();
-        angular.forEach(data, function(val, key){
+        angular.forEach(data, function (val, key) {
             form.append(key, val);
         });
         return $http[method](url, form, {
@@ -209,4 +210,35 @@ app.factory('API', ['$http', '$rootScope', '$cookies', function ($http, $rootSco
             });
     }
     return fn;
-}])
+}]);
+
+app.factory('SocketAPI', ['socketFactory', '$cookies', function (socketFactory, $cookies) {
+    var socket = socketFactory();
+
+    socket.forward('created');
+    socket.forward('updated');
+    socket.forward('removed');
+
+    var fn = function () {
+        return socket;
+    };
+    fn.isConnected = false;
+    fn.auth = function (token) {
+        if (fn.isConnected) {
+            socket.emit('authenticate', {token: token});
+        }
+    }
+    // Check token on socket connect/reconnect
+    socket.on('connect', function () {
+        fn.isConnected = true;
+        if ($cookies.get('token').length) {
+            fn.auth($cookies.get('token'));
+        }
+    });
+
+    socket.on('disconnect', function () {
+        fn.isConnected = false;
+    });
+
+    return fn;
+}]);

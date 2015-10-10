@@ -3,6 +3,7 @@
 angular.module('ProdApp', [
     'ngRoute',
     'ngCookies',
+    'btford.socket-io',
     'ProdApp.Controllers',
     'ProdApp.Services',
     'ProdApp.Directives'

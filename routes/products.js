@@ -9,7 +9,7 @@ var Product = require('./../models/product.js');
 var router = express.Router();
 var upload = multer({dest: './../uploads'});
 
-module.exports = function (app, auth) {
+module.exports = function (app, auth, io) {
     /* Get list of products */
     router.get('/', auth, function (req, res) {
         Product.count({user_id: req.user._id}, function(err, count){
@@ -88,6 +88,15 @@ module.exports = function (app, auth) {
                     err: [err, photoStatus]
                 });
             }
+            
+            // Notice UI about updates
+            io.sockets.sockets.forEach(function(socket){
+                if( socket.decoded_token && socket.decoded_token._id && 
+                    socket.decoded_token._id == req.user._id ) {
+                    socket.emit('created', product);
+                }
+            });
+            
             return res.send({
                 success: true,
                 err: [photoStatus],
@@ -139,6 +148,15 @@ module.exports = function (app, auth) {
                         err: [err, photoStatus]
                     });
                 }
+                
+                // Notice UI about updates
+                io.sockets.sockets.forEach(function(socket){
+                    if( socket.decoded_token && socket.decoded_token._id &&
+                        socket.decoded_token._id == req.user._id ) {
+                        socket.emit('updated', product);
+                    }
+                });
+                
                 return res.send({
                     success: true,
                     err: [photoStatus],
@@ -177,6 +195,15 @@ module.exports = function (app, auth) {
                         err: err
                     });
                 }
+
+                // Notice UI about updates
+                io.sockets.sockets.forEach(function(socket){
+                    if( socket.decoded_token && socket.decoded_token._id &&
+                        socket.decoded_token._id == req.user._id ) {
+                        socket.emit('removed', req.params.id);
+                    }
+                });
+                
                 return res.send({
                     success: true
                 });

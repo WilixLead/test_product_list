@@ -6,9 +6,12 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var jwt = require('jsonwebtoken');
+var socketioJwt   = require("socketio-jwt");
 var config = require('./config.js');
 
 var app = express();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
 
 mongoose.connect(config.database);
 
@@ -29,7 +32,7 @@ var auth = require('./auth.js')(app);
 
 app.use('/', require('./routes/index'));
 app.use('/api/users', require('./routes/users')(app, auth));
-app.use('/api/products', require('./routes/products.js')(app, auth));
+app.use('/api/products', require('./routes/products.js')(app, auth, io));
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -49,9 +52,20 @@ app.use(function (err, req, res, next) {
     });
 });
 
-var server = app.listen(3000, function () {
+io.sockets
+    .on('connection', socketioJwt.authorize({
+        secret: config.secret,
+        timeout: 15000 // 15 seconds to send the authentication message
+    })).on('authenticated', function(socket) {
+        //this socket is authenticated, we are good to handle more events from it.
+        if( socket.decoded_token._id ){
+            console.log('UI connected [' + socket.decoded_token._id + ']');
+        }
+    });
+
+var server = http.listen(config.port, function () {
     console.log('#############################################');
     console.log('Server start\'s with "' + (!app.get('env') ? 'default' : app.get('env')) + '" environment');
-    console.log('Port ' + server.address().port + ' used for HTTP');
+    console.log('Port ' + server.address().port + ' used for HTTP and WebSockets');
     console.log('#############################################');
 });
