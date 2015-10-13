@@ -6,6 +6,10 @@ var assert = require('assert');
 var request = require('supertest');
 var mongoose = require('mongoose');
 
+if (!process.env.NODE_ENV || process.env.NODE_ENV == 'production') {
+    process.env.NODE_ENV = 'testing';
+}
+
 var config = require('./../config.js');
 var User = require('./../models/user.js');
 
