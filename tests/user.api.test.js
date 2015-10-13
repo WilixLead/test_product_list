@@ -14,6 +14,7 @@ describe('Users API', function () {
     var token = '';
 
     before(function(done){
+        console.log('\tTests started for "' + process.env.NODE_ENV + '" environment\n');
         if( !mongoose.isConnected ) {
             mongoose.connect(config.database);
         }

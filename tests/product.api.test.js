@@ -16,6 +16,7 @@ describe('Products API', function () {
     var productForUpdate_id = '';
 
     before(function (done) {
+        console.log('\tTests started for "' + process.env.NODE_ENV + '" environment\n');
         if( !mongoose.isConnected ) {
             mongoose.connect(config.database);
         }
@@ -133,7 +134,7 @@ describe('Products API', function () {
     describe('update', function () {
         it('should update product and return product object', function (done) {
             request(url)
-                .post('/products/' + productForUpdate_id + '?token=' + token)
+                .put('/products/' + productForUpdate_id + '?token=' + token)
                 .field('title', 'We update it')
                 .field('description', 'Yea. Wow product')
                 .attach('file', 'tests/fixtures/prod.test.jpg')
