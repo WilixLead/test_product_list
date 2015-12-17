@@ -5,7 +5,7 @@ var config = {
     port: 3000,
     secret: 'mySuperSecret',
     database: 'mongodb://localhost:27017/testprodlist'
-}
+};
 
 if (!process.env.NODE_ENV) {
     process.env.NODE_ENV = 'production';

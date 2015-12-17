@@ -18,7 +18,7 @@ Scheme.methods.removePhoto = function(){
         }
     }
     this.photo = '';
-}
+};
 
 Scheme.methods.uploadPhoto = function (file, user) {
     if (!file || !file.size) {
@@ -60,6 +60,6 @@ Scheme.methods.uploadPhoto = function (file, user) {
             message: 'File mimetype wrong. Server accept only gif,jpeg,png image types'
         };
     }
-}
+};
 
 module.exports = mongoose.model('Product', Scheme);

@@ -212,4 +212,4 @@ module.exports = function (app, auth, io) {
     });
 
     return router;
-}
+};
